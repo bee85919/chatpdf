@@ -1,2 +1,4 @@
 pypdf
 openai
+chromadb
+tiktoken
