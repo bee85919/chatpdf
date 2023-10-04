@@ -1,5 +1,9 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
 
 loader = PyPDFLoader("luckyday.pdf")
 pages = loader.load_and_split()
@@ -13,4 +17,6 @@ text_splitter = RecursiveCharacterTextSplitter(
 
 texts = text_splitter.split_documents(pages)
 
-print(texts[0])
+from langchain.embeddings import OpenAIEmbeddings
+
+embeddings_model = OpenAIEmbeddings()
