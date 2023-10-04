@@ -4,8 +4,23 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
+
 from dotenv import load_dotenv
+
+# load .env
 load_dotenv()
+
+
+import streamlit as st
+
+# title
+st.title("ChatPDF")
+st.write("---")
+
+
+# upload
+uploaded_file = st.file_uploader("Choose a file")
+st.write("---")
 
 
 # Loader

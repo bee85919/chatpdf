@@ -2,3 +2,4 @@ pypdf
 openai
 chromadb
 tiktoken
+streamlit
