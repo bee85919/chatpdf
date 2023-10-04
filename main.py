@@ -26,7 +26,7 @@ st.write("---")
 
 
 # upload
-uploaded_file = st.file_uploader("Choose a file")
+uploaded_file = st.file_uploader("PDF 파일을 업로드하세요.", type="pdf")
 st.write("---")
 
 
