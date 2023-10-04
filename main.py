@@ -33,3 +33,18 @@ from langchain.embeddings import OpenAIEmbeddings
 
 # Chroma
 db = Chroma.from_documents(texts, embeddings_model)
+
+
+# Ask
+from langchain.chat_models import ChatOpenAI
+from langchain.retrievers.multi_query import MultiQueryRetriever
+
+question = "아내가 먹고 싶어하는 음식은 무엇이야?"
+llm = ChatOpenAI(temperature=0)
+retriever_from_llm = MultiQueryRetriever.from_llm(
+    retriever=db.as_retriever(), llm=llm
+)
+
+docs = retriever_from_llm.get_relevant_documents(query=question)
+print(len(docs))
+print(docs)
