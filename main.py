@@ -12,6 +12,9 @@ load_dotenv()
 
 
 import streamlit as st
+import tempfile
+import os
+
 
 # title
 st.title("ChatPDF")
@@ -23,33 +26,47 @@ uploaded_file = st.file_uploader("Choose a file")
 st.write("---")
 
 
-# Loader
-loader = PyPDFLoader("luckyday.pdf")
-pages = loader.load_and_split()
+def pdf_to_document(uploaded_file):
+    temp_dir = tempfile.TemporaryDirectory()
+    temp_filepath = os.path.join(temp_dir.name, uploaded_file.name)
+    with open(temp_filepath, "wb") as f:
+        f.write(uploaded_file.getvalue())
+    loader = PyPDFLoader(temp_filepath)
+    pages = loader.load_and_split()
+    return pages
 
 
-# Splitter
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size = 500,
-    chunk_overlap  = 20,
-    length_function = len,
-    is_separator_regex = False,
-)
-texts = text_splitter.split_documents(pages)
+# after upload
+if uploaded_file is not None:
+    pages = pdf_to_document(uploaded_file)
 
 
-# Embedding
-embeddings_model = OpenAIEmbeddings()
+    # Splitter
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 500,
+        chunk_overlap  = 20,
+        length_function = len,
+        is_separator_regex = False,
+    )
+    texts = text_splitter.split_documents(pages)
 
 
-# Chroma
-db = Chroma.from_documents(texts, embeddings_model)
+
+    # Embedding
+    embeddings_model = OpenAIEmbeddings()
 
 
-# Generate
-question = "아내가 먹고 싶어하는 음식은 무엇이야?"
-llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
-qa_chain = RetrievalQA.from_chain_type(llm,retriever=db.as_retriever())
-result = qa_chain({"query": question})
+    # Chroma
+    db = Chroma.from_documents(texts, embeddings_model)
 
-print(result)
+
+    # Generate Q&A
+    st.header("PDF에게 질문해보세요!")
+    question = st.text_input("질문을 입력하세요.")
+    
+    if st.button("질문하기"):
+        with st.spinner("답변 생성중..."):        
+            llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+            qa_chain = RetrievalQA.from_chain_type(llm,retriever=db.as_retriever())
+            result = qa_chain({"query": question})
+            st.write(result["result"])
