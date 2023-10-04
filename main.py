@@ -35,16 +35,13 @@ from langchain.embeddings import OpenAIEmbeddings
 db = Chroma.from_documents(texts, embeddings_model)
 
 
-# Ask
+# Generate
+from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
-from langchain.retrievers.multi_query import MultiQueryRetriever
 
 question = "아내가 먹고 싶어하는 음식은 무엇이야?"
-llm = ChatOpenAI(temperature=0)
-retriever_from_llm = MultiQueryRetriever.from_llm(
-    retriever=db.as_retriever(), llm=llm
-)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+qa_chain = RetrievalQA.from_chain_type(llm,retriever=db.as_retriever())
+result = qa_chain({"query": question})
 
-docs = retriever_from_llm.get_relevant_documents(query=question)
-print(len(docs))
-print(docs)
+print(result)
